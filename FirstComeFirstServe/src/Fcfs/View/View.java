@@ -1,11 +1,18 @@
 package Fcfs.View;
+
+import Fcfs.Controller.Controller;
+
+import javax.swing.table.DefaultTableModel;
+import java.util.Timer;
+import java.util.TimerTask;
+
 public class View extends javax.swing.JFrame {
-    public View() {
-        initComponents();
-    }
+    Timer mytime = new Timer();
+    Controller controller = new Controller();
+    private int clock;
     // Variables declaration - do not modify
-    private javax.swing.JTable TableFCFSQueue;
-    private javax.swing.JTable TableTerminaate;
+    private javax.swing.JTable jTableFCFSQueue;
+    private javax.swing.JTable jTableTerminate;
     private javax.swing.JLabel TextTerminate;
     private javax.swing.JLabel TitleText;
     private javax.swing.JButton jButtonAddIOUSB;
@@ -18,7 +25,7 @@ public class View extends javax.swing.JFrame {
     private javax.swing.JLabel jLabelFCFSQueue;
     private javax.swing.JLabel jLabelJobQueueText;
     private javax.swing.JLabel jLabelNumberAVGTurnaroundTime;
-    private javax.swing.JLabel jLabelNumberAVGWatingTime;
+    private javax.swing.JLabel jLabelNumberAVGWaitingTime;
     private javax.swing.JLabel jLabelNumberCock;
     private javax.swing.JLabel jLabelUSB;
     private javax.swing.JLabel jLabelavgWaitingTime;
@@ -38,6 +45,42 @@ public class View extends javax.swing.JFrame {
     private javax.swing.JTable jTableJobQueue;
     private javax.swing.JTable jTableUSB;
     private javax.swing.JPanel mainPanel;
+
+    public View() {
+        initComponents();
+        jButtonAddTerminate.setEnabled(false);
+        jButtonAddIOUSB.setEnabled(false);
+        jButtonEndIO.setEnabled(false);
+        clockTime();
+    }
+
+    public static void main(String args[]) {
+        try {
+            for (javax.swing.UIManager.LookAndFeelInfo info : javax.swing.UIManager.getInstalledLookAndFeels()) {
+                if ("Nimbus".equals(info.getName())) {
+                    javax.swing.UIManager.setLookAndFeel(info.getClassName());
+                    break;
+                }
+            }
+        } catch (ClassNotFoundException ex) {
+            java.util.logging.Logger.getLogger(View.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
+        } catch (InstantiationException ex) {
+            java.util.logging.Logger.getLogger(View.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
+        } catch (IllegalAccessException ex) {
+            java.util.logging.Logger.getLogger(View.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
+        } catch (javax.swing.UnsupportedLookAndFeelException ex) {
+            java.util.logging.Logger.getLogger(View.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
+        }
+        //</editor-fold>
+
+        /* Create and display the form */
+        java.awt.EventQueue.invokeLater(new Runnable() {
+            public void run() {
+                new View().setVisible(true);
+            }
+        });
+    }
+
     // End of variables declaration
     private void initComponents() {
         jScrollPane1 = new javax.swing.JScrollPane();
@@ -45,12 +88,12 @@ public class View extends javax.swing.JFrame {
         TitleText = new javax.swing.JLabel();
         jPanelTerminate = new javax.swing.JPanel();
         jScrollPaneTerminate = new javax.swing.JScrollPane();
-        TableTerminaate = new javax.swing.JTable();
+        jTableTerminate = new javax.swing.JTable();
         TextTerminate = new javax.swing.JLabel();
         jPanelFCFSQueue = new javax.swing.JPanel();
         jLabelFCFSQueue = new javax.swing.JLabel();
         jScrollPaneTerminate1 = new javax.swing.JScrollPane();
-        TableFCFSQueue = new javax.swing.JTable();
+        jTableFCFSQueue = new javax.swing.JTable();
         jPanelAddAndTerminate = new javax.swing.JPanel();
         jButtonAddProcess = new javax.swing.JButton();
         jButtonAddTerminate = new javax.swing.JButton();
@@ -62,7 +105,7 @@ public class View extends javax.swing.JFrame {
         jLabelCPU = new javax.swing.JLabel();
         jLabelavgWaitingTime = new javax.swing.JLabel();
         jLabelAVGTurnaroundTime = new javax.swing.JLabel();
-        jLabelNumberAVGWatingTime = new javax.swing.JLabel();
+        jLabelNumberAVGWaitingTime = new javax.swing.JLabel();
         jLabelNumberAVGTurnaroundTime = new javax.swing.JLabel();
         jPanelUSB = new javax.swing.JPanel();
         jScrollPaneUSB = new javax.swing.JScrollPane();
@@ -88,19 +131,19 @@ public class View extends javax.swing.JFrame {
 
         jPanelTerminate.setBackground(new java.awt.Color(0, 153, 153));
 
-        TableTerminaate.setFont(new java.awt.Font("Arial", 1, 14)); // NOI18N
-        TableTerminaate.setModel(new javax.swing.table.DefaultTableModel(
-                new Object [][] {
+        jTableTerminate.setFont(new java.awt.Font("Arial", 1, 14)); // NOI18N
+        jTableTerminate.setModel(new javax.swing.table.DefaultTableModel(
+                new Object[][]{
                         {null, null},
                         {null, null},
                         {null, null},
                         {null, null}
                 },
-                new String [] {
-                        "ProcessID", "Status"
+                new String[]{
+                        "ProcessID", "Status", "WaitingTime", "TurnaroundTime"
                 }
         ));
-        jScrollPaneTerminate.setViewportView(TableTerminaate);
+        jScrollPaneTerminate.setViewportView(jTableTerminate);
 
         TextTerminate.setFont(new java.awt.Font("OCR A Extended", 1, 24)); // NOI18N
         TextTerminate.setText("Terminate");
@@ -133,19 +176,19 @@ public class View extends javax.swing.JFrame {
         jLabelFCFSQueue.setFont(new java.awt.Font("OCR A Extended", 1, 24)); // NOI18N
         jLabelFCFSQueue.setText("FCFS Queue");
 
-        TableFCFSQueue.setFont(new java.awt.Font("Arial", 1, 14)); // NOI18N
-        TableFCFSQueue.setModel(new javax.swing.table.DefaultTableModel(
-                new Object [][] {
+        jTableFCFSQueue.setFont(new java.awt.Font("Arial", 1, 14)); // NOI18N
+        jTableFCFSQueue.setModel(new javax.swing.table.DefaultTableModel(
+                new Object[][]{
                         {null, null},
                         {null, null},
                         {null, null},
                         {null, null}
                 },
-                new String [] {
+                new String[]{
                         "ProcessID", "Status"
                 }
         ));
-        jScrollPaneTerminate1.setViewportView(TableFCFSQueue);
+        jScrollPaneTerminate1.setViewportView(jTableFCFSQueue);
 
         javax.swing.GroupLayout jPanelFCFSQueueLayout = new javax.swing.GroupLayout(jPanelFCFSQueue);
         jPanelFCFSQueue.setLayout(jPanelFCFSQueueLayout);
@@ -202,10 +245,10 @@ public class View extends javax.swing.JFrame {
 
         jTableCPU.setFont(new java.awt.Font("Arial", 1, 18)); // NOI18N
         jTableCPU.setModel(new javax.swing.table.DefaultTableModel(
-                new Object [][] {
+                new Object[][]{
                         {null, null}
                 },
-                new String [] {
+                new String[]{
                         "Status", "ProcessID"
                 }
         ));
@@ -245,8 +288,8 @@ public class View extends javax.swing.JFrame {
         jLabelAVGTurnaroundTime.setFont(new java.awt.Font("Arial", 1, 20)); // NOI18N
         jLabelAVGTurnaroundTime.setText("AVG TurnaroudTime:");
 
-        jLabelNumberAVGWatingTime.setFont(new java.awt.Font("Arial", 1, 18)); // NOI18N
-        jLabelNumberAVGWatingTime.setText("______");
+        jLabelNumberAVGWaitingTime.setFont(new java.awt.Font("Arial", 1, 18)); // NOI18N
+        jLabelNumberAVGWaitingTime.setText("______");
 
         jLabelNumberAVGTurnaroundTime.setFont(new java.awt.Font("Arial", 1, 18)); // NOI18N
         jLabelNumberAVGTurnaroundTime.setText("______");
@@ -268,7 +311,7 @@ public class View extends javax.swing.JFrame {
                                                         .addGroup(jPanelAddAndTerminateLayout.createSequentialGroup()
                                                                 .addComponent(jLabelavgWaitingTime, javax.swing.GroupLayout.PREFERRED_SIZE, 172, javax.swing.GroupLayout.PREFERRED_SIZE)
                                                                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                                                                .addComponent(jLabelNumberAVGWatingTime, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))))
+                                                                .addComponent(jLabelNumberAVGWaitingTime, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))))
                                         .addGroup(jPanelAddAndTerminateLayout.createSequentialGroup()
                                                 .addContainerGap()
                                                 .addComponent(jLabelCockTime)
@@ -299,7 +342,7 @@ public class View extends javax.swing.JFrame {
                                 .addGap(17, 17, 17)
                                 .addGroup(jPanelAddAndTerminateLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                                         .addComponent(jLabelavgWaitingTime)
-                                        .addComponent(jLabelNumberAVGWatingTime, javax.swing.GroupLayout.PREFERRED_SIZE, 26, javax.swing.GroupLayout.PREFERRED_SIZE))
+                                        .addComponent(jLabelNumberAVGWaitingTime, javax.swing.GroupLayout.PREFERRED_SIZE, 26, javax.swing.GroupLayout.PREFERRED_SIZE))
                                 .addGap(18, 18, 18)
                                 .addGroup(jPanelAddAndTerminateLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                                         .addComponent(jLabelAVGTurnaroundTime)
@@ -312,11 +355,11 @@ public class View extends javax.swing.JFrame {
 
         jTableUSB.setFont(new java.awt.Font("Arial", 1, 14)); // NOI18N
         jTableUSB.setModel(new javax.swing.table.DefaultTableModel(
-                new Object [][] {
+                new Object[][]{
                         {null, null}
                 },
-                new String [] {
-                        "Status", "ProcessID"
+                new String[]{
+                        "ProcessID", "Status", "IOTime", "WaitingTime"
                 }
         ));
         jScrollPaneUSB.setViewportView(jTableUSB);
@@ -378,14 +421,14 @@ public class View extends javax.swing.JFrame {
 
         jTableJobQueue.setFont(new java.awt.Font("Arial", 1, 14)); // NOI18N
         jTableJobQueue.setModel(new javax.swing.table.DefaultTableModel(
-                new Object [][] {
+                new Object[][]{
                         {null, null, null, null, null, null},
                         {null, null, null, null, null, null},
                         {null, null, null, null, null, null},
                         {null, null, null, null, null, null}
                 },
-                new String [] {
-                        "ProcessID", "BurstTime", "ArrivalTime", "WaitingTime", "TurnaroudTime", "Status"
+                new String[]{
+                        "ProcessID", "BurstTime", "ArrivalTime", "WaitingTime", "Status", "IOTime"
                 }
         ));
         jScrollPaneJobQueue.setViewportView(jTableJobQueue);
@@ -480,48 +523,156 @@ public class View extends javax.swing.JFrame {
 
         pack();
     }// </editor-fold>
+
     //TODO ActionPerformed
     private void jButtonAddProcessActionPerformed(java.awt.event.ActionEvent evt) {
-        // TODO add your handling code here:
+        controller.addProcess(clock);
     }
+
     private void jButtonAddTerminateActionPerformed(java.awt.event.ActionEvent evt) {
         // TODO add your handling code here:
+        controller.removeQueue(clock);
     }
+
     private void jButtonAddIOUSBActionPerformed(java.awt.event.ActionEvent evt) {
         // TODO add your handling code here:
+        controller.addUsbQueue();
     }
+
     private void jButtonEndIOActionPerformed(java.awt.event.ActionEvent evt) {
         // TODO add your handling code here:
+        controller.endUsbQueue();
     }
 
-
-    public static void main(String args[]) {
-        try {
-            for (javax.swing.UIManager.LookAndFeelInfo info : javax.swing.UIManager.getInstalledLookAndFeels()) {
-                if ("Nimbus".equals(info.getName())) {
-                    javax.swing.UIManager.setLookAndFeel(info.getClassName());
-                    break;
-                }
-            }
-        } catch (ClassNotFoundException ex) {
-            java.util.logging.Logger.getLogger(View.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
-        } catch (InstantiationException ex) {
-            java.util.logging.Logger.getLogger(View.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
-        } catch (IllegalAccessException ex) {
-            java.util.logging.Logger.getLogger(View.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
-        } catch (javax.swing.UnsupportedLookAndFeelException ex) {
-            java.util.logging.Logger.getLogger(View.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
-        }
-        //</editor-fold>
-
-        /* Create and display the form */
-        java.awt.EventQueue.invokeLater(new Runnable() {
+    public void clockTime() {
+        TimerTask task = new TimerTask() {
             public void run() {
-                new View().setVisible(true);
+                //TODO run
+                //ตัวแปร count ในส่วนนี้ คือส่วนที่จะไปแสดง บนหน้า View ที่เราเห็นกันคือ นับเวลา Clock หรือ CPU Time
+                clock++;
+                jLabelNumberCock.setText(Integer.toString(clock));
+                jLabelNumberAVGTurnaroundTime.setText(controller.getAvgTurnaroundTime());
+                jLabelNumberAVGWaitingTime.setText(controller.getAvgWaitingTime());
+
+                showJob(controller.showJobQueue());
+                showJobReadyQueue(controller.showReadyQueue());
+                showJobTerminateQueue(controller.showTerminateQueue());
+                showJobCPU(controller.showCPU());
+                showJobUSB(controller.showUsb());
+
+                controller.firstComeFirstServed();
+                controller.waitingTime();
+                controller.usbQueue();
+                controller.waitingTimeUsbQueue();
+
+                setButton();
             }
-        });
+        };
+        mytime.scheduleAtFixedRate(task, 1000, 1000);
     }
 
+    public void setButton() {
+        if (jTableCPU.getRowCount() == 0) {
+            jButtonAddIOUSB.setEnabled(false);
+            jButtonAddTerminate.setEnabled(false);
+        } else {
+            jButtonAddIOUSB.setEnabled(true);
+            jButtonAddTerminate.setEnabled(true);
+        }
+        if (jTableUSB.getRowCount() == 0) {
+            jButtonEndIO.setEnabled(false);
+        } else {
+            jButtonEndIO.setEnabled(true);
+        }
+    }
 
+    public void showJob(String text) {
+        try {
+            DefaultTableModel model1 = (DefaultTableModel) jTableJobQueue.getModel();
+            int rowCount = model1.getRowCount();
+            for (int i = rowCount - 1; i >= 0; i--) {
+                model1.removeRow(i);
+            }
+            String[] textTable2 = text.split(",");
+            for (int index = 0; index < textTable2.length; index++) {
+                String[] textTable1 = textTable2[index].split(" ");
+                model1.addRow(new Object[]{textTable1[0], textTable1[1], textTable1[2], textTable1[3], textTable1[4], textTable1[5]});
+            }
+        } catch (ArrayIndexOutOfBoundsException e) {
+
+        }
+    }
+
+    public void showJobReadyQueue(String text) {
+        try {
+            DefaultTableModel model1 = (DefaultTableModel) jTableFCFSQueue.getModel();
+            int rowCount = model1.getRowCount();
+            for (int i = rowCount - 1; i >= 0; i--) {
+                model1.removeRow(i);
+            }
+            String[] textTable2 = text.split(",");
+            for (int index = 1; index < textTable2.length; index++) {
+                String[] textTable1 = textTable2[index].split(" ");
+                model1.addRow(new Object[]{textTable1[0], textTable1[1]});
+            }
+        } catch (ArrayIndexOutOfBoundsException e) {
+
+        }
+    }
+
+    public void showJobTerminateQueue(String text) {
+        try {
+            DefaultTableModel model1 = (DefaultTableModel) jTableTerminate.getModel();
+
+            int rowCount = model1.getRowCount();
+            for (int i = rowCount - 1; i >= 0; i--) {
+                model1.removeRow(i);
+            }
+            String[] textTable2 = text.split(",");
+            for (int index = 0; index < textTable2.length; index++) {
+                String[] textTable1 = textTable2[index].split(" ");
+                model1.addRow(new Object[]{textTable1[0], textTable1[1], textTable1[2], textTable1[3]});
+            }
+        } catch (ArrayIndexOutOfBoundsException e) {
+
+        }
+
+    }
+
+    public void showJobCPU(String text) {
+        try {
+            DefaultTableModel model1 = (DefaultTableModel) jTableCPU.getModel();
+
+            int rowCount = model1.getRowCount();
+            for (int i = rowCount - 1; i >= 0; i--) {
+                model1.removeRow(i);
+            }
+            String[] textTable2 = text.split(",");
+            for (int index = 0; index < textTable2.length; index++) {
+                String[] textTable1 = textTable2[index].split(" ");
+                model1.addRow(new Object[]{textTable1[0], textTable1[1]});
+            }
+        } catch (ArrayIndexOutOfBoundsException e) {
+
+        }
+
+    }
+
+    public void showJobUSB(String text) {
+        try {
+            DefaultTableModel model1 = (DefaultTableModel) jTableUSB.getModel();
+            int rowCount = model1.getRowCount();
+            for (int i = rowCount - 1; i >= 0; i--) {
+                model1.removeRow(i);
+            }
+            String[] textTable2 = text.split(",");
+            for (int index = 0; index < textTable2.length; index++) {
+                String[] textTable1 = textTable2[index].split(" ");
+                model1.addRow(new Object[]{textTable1[0], textTable1[1], textTable1[2], textTable1[3]});
+            }
+        } catch (ArrayIndexOutOfBoundsException e) {
+
+        }
+    }
 }
 
